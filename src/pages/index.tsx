@@ -10,6 +10,7 @@ dayjs.extend(relativeTime);
 
 import { Inter } from "next/font/google";
 import { LoadingPage } from "~/components/loading";
+import { useState } from "react";
 
 const interFont = Inter({
   subsets: ["latin"],
@@ -17,6 +18,16 @@ const interFont = Inter({
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+
+  const [input, setInput] = useState("");
+
+  const ctx = api.useContext();
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      setInput("");
+      void ctx.posts.getAll.invalidate();
+    },
+  });
 
   if (!user) return null;
 
@@ -32,7 +43,18 @@ const CreatePostWizard = () => {
       <input
         placeholder="Type some emojies!"
         className="grow bg-transparent outline-none"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
       />
+      <button
+        onClick={() => {
+          mutate({ content: input });
+          setInput("");
+        }}
+      >
+        Post
+      </button>
     </div>
   );
 };
@@ -54,8 +76,10 @@ const PostsView = (props: PostWithUser) => {
         />
       </div>
       <div className="flex flex-col">
-        <div className="flex gap-1 text-slate-300">
-          <span className="font-semibold">@{author.username}</span>
+        <div className="flex gap-1 text-slate-400">
+          <span className="font-semibold text-slate-200">
+            @{author.username}
+          </span>
           <span>·</span>
           <span>{dayjs(post.createdAt).fromNow().toString()}</span>
         </div>
@@ -82,10 +106,9 @@ const Feed = () => {
 };
 
 export default function Home() {
-  const { user, isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
 
   if (!isLoaded) return <LoadingPage />;
-  if (!user) return null;
 
   return (
     <>
