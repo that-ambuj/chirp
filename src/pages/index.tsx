@@ -9,6 +9,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 import { Inter } from "next/font/google";
+import { LoadingPage } from "~/components/loading";
 
 const interFont = Inter({
   subsets: ["latin"],
@@ -53,26 +54,38 @@ const PostsView = (props: PostWithUser) => {
         />
       </div>
       <div className="flex flex-col">
-        <div className="flex gap-2 text-slate-300">
+        <div className="flex gap-1 text-slate-300">
           <span className="font-semibold">@{author.username}</span>
           <span>·</span>
           <span>{dayjs(post.createdAt).fromNow().toString()}</span>
         </div>
-        <span>{post.content}</span>
+        <span className="text-2xl">{post.content}</span>
       </div>
     </div>
   );
 };
 
-export default function Home() {
-  const user = useUser();
-
-  if (!user) return null;
-
+const Feed = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingPage />;
+
   if (!data) return <div>Something went wrong</div>;
+
+  return (
+    <div className="flex flex-col">
+      {data?.map((postData) => (
+        <PostsView {...postData} key={postData.post.id} />
+      ))}
+    </div>
+  );
+};
+
+export default function Home() {
+  const { user, isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) return <LoadingPage />;
+  if (!user) return null;
 
   return (
     <>
@@ -84,18 +97,14 @@ export default function Home() {
       <main className={`flex h-screen justify-center ${interFont.className}`}>
         <div className="h-full w-full border-x border-slate-400 md:max-w-2xl ">
           <div className="flex border-b border-slate-400 p-4">
-            {!user.isSignedIn && (
+            {!isSignedIn && (
               <div className="flex justify-center">
                 <SignInButton />
               </div>
             )}
-            {user.isSignedIn && <CreatePostWizard />}
+            {isSignedIn && <CreatePostWizard />}
           </div>
-          <div className="flex flex-col">
-            {data?.map((postData) => (
-              <PostsView {...postData} key={postData.post.id} />
-            ))}
-          </div>
+          <Feed />
         </div>
       </main>
     </>
