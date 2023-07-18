@@ -93,7 +93,7 @@ export default function Home() {
 
   return (
     <PageLayout>
-      <div className="flex border-b border-slate-400 p-4">
+      <div className="flex border-b border-neutral-800 p-4">
         {!isSignedIn && (
           <div className="flex justify-center">
             <SignInButton />

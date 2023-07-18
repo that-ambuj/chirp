@@ -6,4 +6,9 @@ body {
   @apply bg-black text-slate-50;
 
   overscroll-behavior: none;
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  display: none
 }
