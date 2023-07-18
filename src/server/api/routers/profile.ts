@@ -13,13 +13,25 @@ export const profilesRouter = createTRPCRouter({
         username: [input.username],
       });
 
-      if (!user) {
+      if (!user || !user.username) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "User not found.",
         });
       }
 
-      return filterUserForClient(user);
+      const filteredUser = filterUserForClient(user);
+
+      if (!filteredUser.username) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User not found.",
+        });
+      }
+
+      return {
+        ...filteredUser,
+        username: filteredUser.username,
+      };
     }),
 });
