@@ -2,16 +2,11 @@ import { SignInButton, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { api } from "~/utils/api";
 
-import { Inter } from "next/font/google";
 import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { PageLayout } from "~/components/layout";
 import { PostView } from "~/components/postview";
-
-const interFont = Inter({
-  subsets: ["latin"],
-});
 
 const CreatePostWizard = () => {
   const { user } = useUser();
